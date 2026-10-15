@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>你为什么还没辞职？｜互动测试原型</title>
+  <style>
+    :root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: #1c2740; background: #f7f5f1; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 0%, #e7e5fa, transparent 35%), #f7f5f1; }
+    main { width: min(100% - 32px, 650px); margin: 0 auto; padding: 48px 0 80px; }
+    .eyebrow { color: #6551aa; font-size: 13px; font-weight: 800; letter-spacing: .1em; }
+    h1 { font-size: clamp(34px, 7vw, 56px); line-height: 1.13; letter-spacing: -.05em; margin: 17px 0; }
+    h2 { font-size: clamp(24px, 5vw, 34px); line-height: 1.3; letter-spacing: -.035em; margin: 14px 0 18px; }
+    h3 { margin: 0 0 10px; font-size: 18px; }
+    p { line-height: 1.75; color: #4d5870; }
+    .lead { font-size: 18px; max-width: 540px; }
+    .card { border: 1px solid #e6e2dc; border-radius: 22px; padding: clamp(22px, 5vw, 38px); background: #fff; box-shadow: 0 12px 40px #2521370c; }
+    .pill { display: inline-block; border-radius: 50px; background: #eeeafb; color: #5d4a99; padding: 7px 12px; font-size: 13px; font-weight: 700; }
+    .button { appearance: none; border: 0; background: #55419a; color: #fff; padding: 15px 25px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; min-height: 48px; }
+    .button:hover { background: #43317f; }
+    .button:focus-visible, .choice:focus-visible, .text-button:focus-visible { outline: 3px solid #a791fb; outline-offset: 3px; }
+    .button.secondary { background: #eeeafb; color: #4f3e88; }
+    .button.secondary:hover { background: #e3ddfa; }
+    .text-button { border: 0; background: transparent; color: #5a478f; font: inherit; font-weight: 700; cursor: pointer; padding: 12px 4px; }
+    .muted { color: #6b7485; font-size: 14px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
+    .progress-wrap { height: 7px; background: #e8e4e1; border-radius: 9px; overflow: hidden; margin: 13px 0 34px; }
+    .progress { height: 100%; background: #7561ba; border-radius: inherit; transition: width .2s ease; }
+    .choices { display: grid; gap: 10px; margin-top: 25px; }
+    .choice { text-align: left; width: 100%; border: 1.5px solid #e2dfdc; background: #fff; border-radius: 14px; padding: 16px 18px; color: #243049; font: inherit; line-height: 1.5; cursor: pointer; min-height: 55px; }
+    .choice:hover { border-color: #9c8acb; background: #faf8ff; }
+    .choice.selected { border-color: #634da6; background: #f1edfc; box-shadow: inset 0 0 0 1px #634da6; }
+    .section { margin-top: 16px; }
+    .report-head { border-left: 5px solid #7b66be; padding-left: 16px; }
+    .evidence { margin: 8px 0 0; padding-left: 21px; color: #4d5870; line-height: 1.75; }
+    .share-card { border-radius: 20px; padding: 26px; background: #26213d; color: #fff; margin-top: 24px; }
+    .share-card .eyebrow { color: #bdb0f8; }
+    .share-card h3 { font-size: 24px; line-height: 1.35; margin: 14px 0; }
+    .share-card p { color: #dbd7e9; margin-bottom: 0; }
+    .divider { border: 0; border-top: 1px solid #ece8e4; margin: 25px 0; }
+    .notice { margin-top: 24px; padding: 13px 16px; background: #f1eee8; color: #535b69; border-radius: 12px; font-size: 13px; line-height: 1.65; }
+    textarea { width: 100%; min-height: 86px; border: 1px solid #dcd7dd; border-radius: 12px; padding: 13px; resize: vertical; font: inherit; color: #243049; }
+    textarea:focus-visible { outline: 3px solid #a791fb; outline-offset: 2px; }
+    .feedback-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+    .feedback-options .choice { width: auto; min-height: 44px; padding: 10px 16px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 500px) { main { padding-top: 30px; } .card { border-radius: 18px; } }
+  </style>
+</head>
+<body>
+<main id="app" aria-live="polite"></main>
+<script>
+(() => {
+  'use strict';
+  const app = document.getElementById('app');
+  const SCALE = [
+    {id:'1', label:'非常不同意'}, {id:'2', label:'不同意'}, {id:'3', label:'说不清'},
+    {id:'4', label:'同意'}, {id:'5', label:'非常同意'}
+  ];
+  const questions = [
+    {title:'如果现在离职，短期没有收入，基本开销会怎样？', options:[['a','很快受到影响'],['b','可以支撑一段时间，但压力明显'],['c','暂时不受影响'],['skip','不想回答']]},
+    {title:'是否有人在经济上依赖你？', options:[['a','是，且我承担主要开销'],['b','是，但有人共同承担'],['c','没有'],['skip','不想回答']]},
+    {title:'目前有没有可执行的下一步？', options:[['a','已有明确的新工作机会'],['b','正在面试或接触机会'],['c','还没有开始寻找'],['skip','不想回答']]},
+    {title:'离职前有没有必须先解决的具体限制？', subtitle:'例如签证、合同或福利衔接。', options:[['a','有'],['b','不确定'],['c','没有'],['skip','不想回答']]},
+    {title:'即使有生活费储备，我仍很难接受新工作的不确定性。', options:SCALE},
+    {title:'上次看到一个条件不错的外部岗位，你最先做了什么？', options:[['s','先算收入和试用期等风险'],['a','想到现在工作里舍不得的人或积累'],['u','继续搜集信息、比较机会'],['none','最近没有遇到过']]},
+    {title:'即使新工作的长期前景不明朗，我也能决定先尝试。', options:SCALE},
+    {title:'即使拿到条件相近的机会，我仍会舍不得现在的团队或工作内容。', options:SCALE},
+    {title:'最近一次认真想离职却留下来，最直接的原因是什么？', options:[['r','当时经济或其他现实条件不允许'],['a','现职仍有我想保留的东西'],['u','没有足够信息判断下一份会不会更好'],['none','其他／记不清']]},
+    {title:'如果外部机会条件相近，我不会因为“这里待久了”而留下。', options:SCALE},
+    {title:'我查了很多离职或求职信息，却仍然很难推进决定。', options:SCALE},
+    {title:'如果本周出现一个你感兴趣的岗位，你最可能先做什么？', subtitle:'这是假设情境；结果会更重视你真实经历的回答。', options:[['s','确认收入与风险能否承受'],['a','比较它和现职中舍不得的部分'],['u','继续寻找更多机会，暂时不申请'],['go','直接申请，再逐步了解']]},
+    {title:'只要掌握关键事实，即使结果无法保证，我也能做决定。', options:SCALE},
+    {title:'假如新工作收入相近，且生活开销已有安排，你现在更想？', options:[['leave','离开'],['stay','留下'],['unsure','仍然难决定']]},
+    {title:'过去一个月，你实际做过哪一步？', options:[['active','投递、面试或谈过新机会'],['research','查过信息或和人讨论'],['none','还没有行动']]}
+  ];
+  let step = -1;
+  let answers = Array(questions.length).fill(null);
+  const escapeHTML = str => String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  // 本地文件或测试服务器不应被误传为朋友可访问的公开地址。
+  const publicUrl = () => location.protocol === 'https:' ? `${location.origin}${location.pathname}` : '';
+  function saveShareImage(title) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#26213d';
+    ctx.fillRect(0, 0, 1080, 1350);
+    ctx.fillStyle = '#6e57b0';
+    ctx.fillRect(90, 112, 90, 10);
+    ctx.fillStyle = '#c9bafd';
+    ctx.font = '700 38px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    ctx.fillText('你为什么还没辞职？', 90, 215);
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 76px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    let line = '';
+    let y = 480;
+    for (const char of Array.from(title)) {
+      if (ctx.measureText(line + char).width > 890 && line) {
+        ctx.fillText(line, 90, y);
+        line = char;
+        y += 112;
+      } else line += char;
+    }
+    if (line) ctx.fillText(line, 90, y);
+    ctx.fillStyle = '#d8d0f4';
+    ctx.font = '32px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    ctx.fillText('一个帮你整理想法的小测试', 90, 1110);
+    const url = publicUrl();
+    if (url) {
+      ctx.font = '25px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+      ctx.fillText(url.length > 70 ? `${url.slice(0, 67)}…` : url, 90, 1180);
+    } else ctx.fillText('本地原型 · 尚无可访问的测试链接', 90, 1180);
+    const link = document.createElement('a');
+    link.download = '你为什么还没辞职-分享卡.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
+  const label = (index) => {
+    const q = questions[index];
+    const option = q.options.find(o => (Array.isArray(o) ? o[0] : o.id) === answers[index]);
+    return option ? (Array.isArray(option) ? option[1] : option.label) : '';
+  };
+  function showIntro() {
+    step = -1;
+    app.innerHTML = `<div class="eyebrow">独立完成 · 互动原型</div>
+      <h1>你为什么<br>还没辞职？</h1>
+      <p class="lead">你想离开，却还没走。是现实条件暂时挡住了路，还是这份工作仍有你舍不得的东西？用具体选择，整理一次自己的想法。</p>
+      <div class="card"><span class="pill">约 3 分钟 · 15 题</span>
+      <p>这不是心理诊断，也不会替你决定该不该辞职。涉及经济与家庭的答案仅用于本页分析，不会出现在分享卡。</p>
+      <p class="muted">原型只在当前浏览器页面内处理答案；不发送到服务器，也不保存到本地。刷新页面会清空答案。</p>
+      <button class="button" id="start">开始测试</button></div>`;
+    document.getElementById('start').addEventListener('click', () => showQuestion(0));
+  }
+  function showQuestion(index) {
+    step = index;
+    const q = questions[index];
+    const options = q.options.map(option => {
+      const id = Array.isArray(option) ? option[0] : option.id;
+      const text = Array.isArray(option) ? option[1] : option.label;
+      return `<button type="button" class="choice${answers[index] === id ? ' selected' : ''}" data-choice="${escapeHTML(id)}" aria-pressed="${answers[index] === id}">${escapeHTML(text)}</button>`;
+    }).join('');
+    app.innerHTML = `<div class="eyebrow">你为什么还没辞职？</div>
+      <div class="progress-wrap" role="progressbar" aria-label="答题进度" aria-valuenow="${index + 1}" aria-valuemin="0" aria-valuemax="${questions.length}"><div class="progress" style="width:${((index + 1) / questions.length) * 100}%"></div></div>
+      <div class="card"><span class="pill">第 ${index + 1} / ${questions.length} 题</span>
+      <h2 id="question-heading" tabindex="-1">${escapeHTML(q.title)}</h2>
+      ${q.subtitle ? `<p class="muted">${escapeHTML(q.subtitle)}</p>` : ''}
+      <div class="choices" role="group" aria-labelledby="question-heading">${options}</div>
+      <div class="actions"><button type="button" class="text-button" id="back">${index ? '← 上一题' : '← 返回首页'}</button></div></div>`;
+    document.getElementById('question-heading').focus();
+    app.querySelectorAll('[data-choice]').forEach(button => button.addEventListener('click', () => {
+      answers[index] = button.dataset.choice;
+      if (index + 1 === questions.length) showResult();
+      else showQuestion(index + 1);
+    }));
+    document.getElementById('back').addEventListener('click', () => index ? showQuestion(index - 1) : showIntro());
+  }
+  function analyze() {
+    const value = (index, reverse = false) => {
+      const n = Number(answers[index]);
+      return Number.isInteger(n) && n >= 1 && n <= 5 ? (reverse ? 6 - n : n) : null;
+    };
+    const dimensions = [
+      {key:'s', name:'对稳定的需要', values:[value(4),value(6,true)]},
+      {key:'a', name:'对现职的留恋', values:[value(7),value(9,true)]},
+      {key:'u', name:'决策迟滞', values:[value(10),value(12,true)]}
+    ];
+    // 行为题是辅助证据，不足以独自触发一个心理结论。
+    for (const d of dimensions) {
+      d.core = d.values.every(v => v !== null) ? (d.values[0] + d.values[1]) / 2 : null;
+      d.support = [answers[5], answers[8], answers[11]].filter(v => v === d.key).length;
+      d.rank = d.core === null ? 0 : d.core + Math.min(d.support, 2) * .25;
+    }
+    dimensions.sort((x,y) => y.rank - x.rank);
+    const [top, second] = dimensions;
+    const reality = answers[0] === 'a' || answers[3] === 'a' || answers[8] === 'r';
+    let type = 'unclear';
+    if (reality && answers[13] === 'leave') type = 'reality';
+    else if (reality) type = 'mixed';
+    else if (top.core !== null && top.core >= 3.75 && top.rank - second.rank >= .5) {
+      // 反事实题不吻合时，不强行输出唯一心理原因。
+      if (top.key === 'a' && answers[13] !== 'leave') type = 'attachment';
+      else if (top.key === 'u' && answers[13] === 'unsure') type = 'uncertainty';
+      else if (top.key === 's' && answers[13] !== 'leave') type = 'stability';
+    }
+    return {type, reality, dimensions};
+  }
+  const copy = {
+    reality: {headline:'你想走，但现实成本还挡在前面。', body:'你的回答显示，当前有需要先处理的实际条件。在“收入与开销已有安排”的假设下，你更倾向离开。这里不把现实压力说成缺少勇气。', prompt:'哪一个具体条件解决后，你才真正有选择的余地？', share:'不是不敢离开，而是在为改变留出空间。'},
+    mixed: {headline:'你留下，可能不止一个原因。', body:'你的回答中有现实阻力；但即使假设收入与开销已有安排，你也没有明确选择离开。因此，单靠解决眼前条件，未必能解释全部纠结。', prompt:'如果一个现实阻力消失，你还有什么舍不得或没想清楚？', share:'留下来，有时不只有一个理由。'},
+    attachment: {headline:'你想换一种生活，也舍不得现在的积累。', body:'多个回答提到对现有工作、团队或积累的留恋；在条件相近的假设下，你也没有明确选择离开。这是可能的拉扯，不是对你的定型。', prompt:'你想保留的是这份工作，还是它给你的关系与积累？', share:'想离开，也可以同时舍不得。'},
+    uncertainty: {headline:'你可能不是没想过，而是还在等一个更确定的答案。', body:'你的回答反复出现继续搜集信息、难以推进决定的倾向；即使假设收入条件已有安排，你仍表示难决定。', prompt:'你还缺哪一条关键事实？得到它以后，你愿意做决定吗？', share:'有时候，卡住我们的不是选择，而是想要确定。'},
+    stability: {headline:'变化带来的不确定性，可能比现职更让你犹豫。', body:'你在多道题中优先考虑稳定与风险；即使假设收入条件相近，你也没有明确选择离开。这不等于你应该留下。', prompt:'哪一种具体风险需要降低，你才愿意认真考虑下一步？', share:'我在意的不是不变，而是变化有没有边界。'},
+    unclear: {headline:'现在还看不出唯一的原因。', body:'你的回答没有稳定地指向同一个原因，或者关键问题尚未明确。这比强行给你一个“人格类型”更诚实。', prompt:'哪一个问题最值得你先弄清楚，才能判断下一步？', share:'我还在弄清，究竟是什么让我留下。'}
+  };
+  function showResult() {
+    step = questions.length;
+    const result = analyze();
+    const text = copy[result.type];
+    const evidence = [];
+    if (answers[0] === 'a') evidence.push('你表示短期没有收入会很快影响基本开销。');
+    if (answers[3] === 'a') evidence.push('你表示离职前有必须解决的具体限制。');
+    if (answers[8] === 'r') evidence.push('你回忆最近一次留下，是因为当时的现实条件不允许。');
+    if (result.type === 'attachment' && answers[8] === 'a') evidence.push('你回忆最近一次留下，是因为现职仍有想保留的东西。');
+    if (result.type === 'uncertainty' && answers[8] === 'u') evidence.push('你回忆最近一次留下，是因为缺少判断下一份工作的关键信息。');
+    if (['attachment','uncertainty','stability'].includes(result.type)) {
+      const itemIndices = {stability:[4,6], attachment:[7,9], uncertainty:[10,12]};
+      const behaviorIndices = [5,8,11];
+      const top = result.dimensions[0];
+      for (const index of itemIndices[result.type]) {
+        evidence.push(`第 ${index + 1} 题「${questions[index].title}」你选了「${label(index)}」。`);
+      }
+      const behaviorIndex = behaviorIndices.find(index => answers[index] === top.key);
+      if (behaviorIndex !== undefined) evidence.push(`第 ${behaviorIndex + 1} 题，你选了「${label(behaviorIndex)}」。`);
+    }
+    if (answers[13] === 'leave') evidence.push('假设收入相近且生活开销已有安排，你更想离开。');
+    else if (answers[13] === 'stay') evidence.push('即使假设收入相近且开销已有安排，你仍更想留下。');
+    else evidence.push('即使假设收入相近且开销已有安排，你仍表示难决定。');
+    if (answers[2] === 'c') evidence.push('你目前还没有开始寻找下一步；这只描述进度，不代表你不能离职。');
+    if (evidence.length === 0) evidence.push('目前可用的回答还不足以支持更具体的判断。');
+    app.innerHTML = `<div class="eyebrow">你的私人报告 · 原型结果</div>
+      <div class="card section"><div class="report-head"><span class="pill">先看最有把握的一点</span><h2>${escapeHTML(text.headline)}</h2></div>
+      <p>${escapeHTML(text.body)}</p><hr class="divider"><h3>为什么这样说</h3>
+      <ul class="evidence">${evidence.map(e => `<li>${escapeHTML(e)}</li>`).join('')}</ul>
+      <hr class="divider"><h3>留给自己的一个问题</h3><p>${escapeHTML(text.prompt)}</p>
+      <div class="notice">这是一套未经正式验证的自我梳理题，不是心理诊断、职业建议或辞职建议。答案仅在本页内存中处理；刷新即清空。</div></div>
+      <div class="share-card" aria-label="分享卡预览"><div class="eyebrow">分享卡预览 · 不含个人答题信息</div>
+      <h3>${escapeHTML(text.share)}</h3><p>你为什么还没辞职？｜一个帮你整理想法的小测试</p></div>
+      <p class="muted">${publicUrl() ? '公开页面地址会随分享文案附上。' : '当前是本地原型；分享卡尚无朋友可访问的测试链接。'}</p>
+      <div class="actions"><button class="button" id="share">分享这句非敏感标题</button><button class="button secondary" id="save-image">保存分享图</button><button class="button secondary" id="restart">重新测试</button><button class="text-button" id="edit">← 修改答案</button></div>
+      <p class="muted" id="status" role="status"></p>
+      <div class="card section" id="feedback"><h3>帮我们检查结果是否说中了你</h3>
+      <p class="muted">这份反馈不会自动发送。你可以复制后自行提供给产品设计者；不包含你的答题记录。请勿填写收入、家庭等隐私。</p>
+      <div class="feedback-options" role="group" aria-label="结果贴合程度">
+        <button type="button" class="choice" data-rating="贴合" aria-pressed="false">贴合</button>
+        <button type="button" class="choice" data-rating="部分贴合" aria-pressed="false">部分贴合</button>
+        <button type="button" class="choice" data-rating="不贴合" aria-pressed="false">不贴合</button></div>
+      <label for="feedback-note">哪里说中了，或哪里判断错了？（选填）</label>
+      <textarea id="feedback-note" maxlength="240" placeholder="例如：现实限制说中了，但我其实不留恋现在的工作。"></textarea>
+      <div class="actions"><button type="button" class="button secondary" id="make-feedback">生成可复制的反馈</button></div>
+      <textarea id="feedback-output" aria-label="反馈文本" readonly hidden></textarea>
+      <p class="muted" id="feedback-status" role="status"></p></div>`;
+    document.getElementById('share').addEventListener('click', async () => {
+      const content = `${text.share}\n你为什么还没辞职？｜一个帮你整理想法的小测试${publicUrl() ? `\n${publicUrl()}` : ''}`;
+      const status = document.getElementById('status');
+      try {
+        if (navigator.share) await navigator.share({title:'你为什么还没辞职？', text:content});
+        else if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(content);
+          status.textContent = '已复制分享文案；不包含你的答题信息。';
+        } else status.textContent = '当前环境不支持一键复制，请手动复制上方分享卡文字。';
+      } catch (error) {
+        if (error.name !== 'AbortError') status.textContent = '分享未完成，请手动复制上方分享卡文字。';
+      }
+    });
+    document.getElementById('save-image').addEventListener('click', () => saveShareImage(text.share));
+    document.getElementById('restart').addEventListener('click', () => { answers = Array(questions.length).fill(null); showIntro(); });
+    document.getElementById('edit').addEventListener('click', () => showQuestion(questions.length - 1));
+    let rating = '';
+    app.querySelectorAll('[data-rating]').forEach(button => button.addEventListener('click', () => {
+      rating = button.dataset.rating;
+      app.querySelectorAll('[data-rating]').forEach(item => {
+        const selected = item === button;
+        item.classList.toggle('selected', selected);
+        item.setAttribute('aria-pressed', String(selected));
+      });
+    }));
+    document.getElementById('make-feedback').addEventListener('click', async () => {
+      const status = document.getElementById('feedback-status');
+      if (!rating) { status.textContent = '请先选择结果是否贴合。'; return; }
+      const note = document.getElementById('feedback-note').value.trim();
+      const output = document.getElementById('feedback-output');
+      output.value = `测试原型反馈\n结果类型：${result.type}\n贴合程度：${rating}\n补充：${note || '未填写'}`;
+      output.hidden = false;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(output.value);
+          status.textContent = '已复制反馈；未自动发送。';
+        } else status.textContent = '反馈已生成。可从下方文本框手动复制；未自动发送。';
+      } catch (error) { status.textContent = '反馈已生成。可从下方文本框手动复制；未自动发送。'; }
+    });
+  }
+  showIntro();
+  // 仅供本地自动化验证；不向网络发送任何数据。
+  window.__quizTest = {getQuestions: () => questions.map(q => q.title), getState: () => ({step, answers:[...answers]}), answer: (index,id) => {answers[index]=id;}, analyze, showResult, showQuestion};
+})();
+</script>
+</body>
+</html>
