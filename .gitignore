@@ -1,5 +1,6 @@
 test_prototype.py
 result-preview.png
+mobile-result.png
 *.zip
 __pycache__/
 .DS_Store

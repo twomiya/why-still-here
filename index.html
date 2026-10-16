@@ -6,47 +6,50 @@
   <meta name="color-scheme" content="light">
   <title>你为什么还没辞职？｜互动测试原型</title>
   <style>
-    :root { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; color: #1c2740; background: #f7f5f1; }
+    :root {
+      color-scheme: light;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --ink: #272344; --muted: #66647e; --accent: #6553b7; --accent-deep: #51409c;
+      --accent-soft: #f0ecfc; --line: #e5e0f1; --surface: #fff;
+      color: var(--ink); background: #f7f6fc;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% 0%, #e7e5fa, transparent 35%), #f7f5f1; }
-    main { width: min(100% - 32px, 650px); margin: 0 auto; padding: 48px 0 80px; }
-    .eyebrow { color: #6551aa; font-size: 13px; font-weight: 800; letter-spacing: .1em; }
-    h1 { font-size: clamp(34px, 7vw, 56px); line-height: 1.13; letter-spacing: -.05em; margin: 17px 0; }
-    h2 { font-size: clamp(24px, 5vw, 34px); line-height: 1.3; letter-spacing: -.035em; margin: 14px 0 18px; }
-    h3 { margin: 0 0 10px; font-size: 18px; }
-    p { line-height: 1.75; color: #4d5870; }
-    .lead { font-size: 18px; max-width: 540px; }
-    .card { border: 1px solid #e6e2dc; border-radius: 22px; padding: clamp(22px, 5vw, 38px); background: #fff; box-shadow: 0 12px 40px #2521370c; }
-    .pill { display: inline-block; border-radius: 50px; background: #eeeafb; color: #5d4a99; padding: 7px 12px; font-size: 13px; font-weight: 700; }
-    .button { appearance: none; border: 0; background: #55419a; color: #fff; padding: 15px 25px; border-radius: 12px; font: inherit; font-weight: 700; cursor: pointer; min-height: 48px; }
-    .button:hover { background: #43317f; }
-    .button:focus-visible, .choice:focus-visible, .text-button:focus-visible { outline: 3px solid #a791fb; outline-offset: 3px; }
-    .button.secondary { background: #eeeafb; color: #4f3e88; }
-    .button.secondary:hover { background: #e3ddfa; }
-    .text-button { border: 0; background: transparent; color: #5a478f; font: inherit; font-weight: 700; cursor: pointer; padding: 12px 4px; }
-    .muted { color: #6b7485; font-size: 14px; }
-    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 28px; }
-    .progress-wrap { height: 7px; background: #e8e4e1; border-radius: 9px; overflow: hidden; margin: 13px 0 34px; }
-    .progress { height: 100%; background: #7561ba; border-radius: inherit; transition: width .2s ease; }
-    .choices { display: grid; gap: 10px; margin-top: 25px; }
-    .choice { text-align: left; width: 100%; border: 1.5px solid #e2dfdc; background: #fff; border-radius: 14px; padding: 16px 18px; color: #243049; font: inherit; line-height: 1.5; cursor: pointer; min-height: 55px; }
-    .choice:hover { border-color: #9c8acb; background: #faf8ff; }
-    .choice.selected { border-color: #634da6; background: #f1edfc; box-shadow: inset 0 0 0 1px #634da6; }
-    .section { margin-top: 16px; }
-    .report-head { border-left: 5px solid #7b66be; padding-left: 16px; }
-    .evidence { margin: 8px 0 0; padding-left: 21px; color: #4d5870; line-height: 1.75; }
-    .share-card { border-radius: 20px; padding: 26px; background: #26213d; color: #fff; margin-top: 24px; }
-    .share-card .eyebrow { color: #bdb0f8; }
-    .share-card h3 { font-size: 24px; line-height: 1.35; margin: 14px 0; }
-    .share-card p { color: #dbd7e9; margin-bottom: 0; }
-    .divider { border: 0; border-top: 1px solid #ece8e4; margin: 25px 0; }
-    .notice { margin-top: 24px; padding: 13px 16px; background: #f1eee8; color: #535b69; border-radius: 12px; font-size: 13px; line-height: 1.65; }
-    textarea { width: 100%; min-height: 86px; border: 1px solid #dcd7dd; border-radius: 12px; padding: 13px; resize: vertical; font: inherit; color: #243049; }
-    textarea:focus-visible { outline: 3px solid #a791fb; outline-offset: 2px; }
-    .feedback-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
-    .feedback-options .choice { width: auto; min-height: 44px; padding: 10px 16px; }
-    [hidden] { display: none !important; }
-    @media (max-width: 500px) { main { padding-top: 30px; } .card { border-radius: 18px; } }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 85% -10%, #e7defa 0, transparent 42%), #f7f6fc; }
+    main { width: min(100% - 36px, 620px); margin: 0 auto; padding: 48px 0 max(72px, env(safe-area-inset-bottom)); }
+    h1, h2, p { overflow-wrap: anywhere; }
+    h1 { margin: 18px 0 16px; font-size: clamp(38px, 9vw, 60px); line-height: 1.15; letter-spacing: -.045em; }
+    h2 { margin: 18px 0; font-size: clamp(25px, 6vw, 34px); line-height: 1.35; letter-spacing: -.025em; }
+    p { color: var(--muted); line-height: 1.7; }
+    .eyebrow { color: var(--accent); font-size: 13px; font-weight: 800; letter-spacing: .08em; }
+    .lead { margin: 0 0 30px; max-width: 520px; font-size: clamp(16px, 4vw, 18px); }
+    .card { border: 1px solid var(--line); border-radius: 22px; padding: clamp(22px, 5vw, 36px); background: var(--surface); box-shadow: 0 16px 48px #3630600b; }
+    .pill { display: inline-block; border-radius: 50px; background: var(--accent-soft); color: var(--accent-deep); padding: 7px 12px; font-size: 13px; font-weight: 700; }
+    .muted { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .button, .choice, .text-button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .button { appearance: none; border: 0; border-radius: 14px; background: var(--accent); color: #fff; padding: 14px 24px; min-height: 54px; font-weight: 700; }
+    .button:hover { background: var(--accent-deep); }
+    .button:focus-visible, .choice:focus-visible, .text-button:focus-visible { outline: 3px solid #a696ed; outline-offset: 3px; }
+    .text-button { border: 0; background: transparent; color: var(--accent-deep); font-weight: 700; min-height: 48px; padding: 10px 2px; }
+    .actions { display: flex; align-items: center; gap: 12px; margin-top: 24px; }
+    .progress-wrap { height: 7px; background: var(--line); border-radius: 9px; overflow: hidden; margin: 14px 0 26px; }
+    .progress { height: 100%; background: var(--accent); border-radius: inherit; transition: width .2s ease; }
+    .choices { display: grid; gap: 10px; margin-top: 26px; }
+    .choice { width: 100%; min-height: 56px; padding: 15px 17px; text-align: left; line-height: 1.5; color: var(--ink); background: #fff; border: 1.5px solid var(--line); border-radius: 14px; overflow-wrap: anywhere; }
+    .choice:hover { border-color: var(--accent); background: #fbfaff; }
+    .choice.selected { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+    .result-card { position: relative; overflow: hidden; margin-top: 22px; }
+    .result-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--accent); }
+    .result-card p { margin: 0; font-size: 16px; }
+    .result-card .button { margin-top: 28px; }
+    .result-note { display: block; margin-top: 18px; }
+    @media (max-width: 520px) {
+      main { width: calc(100% - 32px); padding-top: max(28px, env(safe-area-inset-top)); }
+      .card { border-radius: 20px; }
+      .button { width: 100%; }
+      .result-card { margin-top: 18px; }
+      .choices { gap: 9px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .progress { transition: none; } }
   </style>
 </head>
 <body>
@@ -79,60 +82,14 @@
   let step = -1;
   let answers = Array(questions.length).fill(null);
   const escapeHTML = str => String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  // 本地文件或测试服务器不应被误传为朋友可访问的公开地址。
-  const publicUrl = () => location.protocol === 'https:' ? `${location.origin}${location.pathname}` : '';
-  function saveShareImage(title) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1350;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#26213d';
-    ctx.fillRect(0, 0, 1080, 1350);
-    ctx.fillStyle = '#6e57b0';
-    ctx.fillRect(90, 112, 90, 10);
-    ctx.fillStyle = '#c9bafd';
-    ctx.font = '700 38px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
-    ctx.fillText('你为什么还没辞职？', 90, 215);
-    ctx.fillStyle = '#fff';
-    ctx.font = '700 76px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
-    let line = '';
-    let y = 480;
-    for (const char of Array.from(title)) {
-      if (ctx.measureText(line + char).width > 890 && line) {
-        ctx.fillText(line, 90, y);
-        line = char;
-        y += 112;
-      } else line += char;
-    }
-    if (line) ctx.fillText(line, 90, y);
-    ctx.fillStyle = '#d8d0f4';
-    ctx.font = '32px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
-    ctx.fillText('一个帮你整理想法的小测试', 90, 1110);
-    const url = publicUrl();
-    if (url) {
-      ctx.font = '25px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
-      ctx.fillText(url.length > 70 ? `${url.slice(0, 67)}…` : url, 90, 1180);
-    } else ctx.fillText('本地原型 · 尚无可访问的测试链接', 90, 1180);
-    const link = document.createElement('a');
-    link.download = '你为什么还没辞职-分享卡.png';
-    link.href = canvas.toDataURL('image/png');
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  }
-  const label = (index) => {
-    const q = questions[index];
-    const option = q.options.find(o => (Array.isArray(o) ? o[0] : o.id) === answers[index]);
-    return option ? (Array.isArray(option) ? option[1] : option.label) : '';
-  };
   function showIntro() {
     step = -1;
-    app.innerHTML = `<div class="eyebrow">独立完成 · 互动原型</div>
+    app.innerHTML = `<div class="eyebrow">工作选择 · 自我梳理</div>
       <h1>你为什么<br>还没辞职？</h1>
-      <p class="lead">你想离开，却还没走。是现实条件暂时挡住了路，还是这份工作仍有你舍不得的东西？用具体选择，整理一次自己的想法。</p>
+      <p class="lead">想离开，却还没走。花几分钟，看看是什么让你留在现在的工作里。</p>
       <div class="card"><span class="pill">约 3 分钟 · 15 题</span>
-      <p>这不是心理诊断，也不会替你决定该不该辞职。涉及经济与家庭的答案仅用于本页分析，不会出现在分享卡。</p>
-      <p class="muted">原型只在当前浏览器页面内处理答案；不发送到服务器，也不保存到本地。刷新页面会清空答案。</p>
+      <p>根据你的选择，得到一条简短结果。不判断你该不该辞职，也不是心理诊断。</p>
+      <p class="muted">答案只在当前页面处理，不上传、不保存；刷新页面会清空。</p>
       <button class="button" id="start">开始测试</button></div>`;
     document.getElementById('start').addEventListener('click', () => showQuestion(0));
   }
@@ -190,99 +147,24 @@
     return {type, reality, dimensions};
   }
   const copy = {
-    reality: {headline:'你想走，但现实成本还挡在前面。', body:'你的回答显示，当前有需要先处理的实际条件。在“收入与开销已有安排”的假设下，你更倾向离开。这里不把现实压力说成缺少勇气。', prompt:'哪一个具体条件解决后，你才真正有选择的余地？', share:'不是不敢离开，而是在为改变留出空间。'},
-    mixed: {headline:'你留下，可能不止一个原因。', body:'你的回答中有现实阻力；但即使假设收入与开销已有安排，你也没有明确选择离开。因此，单靠解决眼前条件，未必能解释全部纠结。', prompt:'如果一个现实阻力消失，你还有什么舍不得或没想清楚？', share:'留下来，有时不只有一个理由。'},
-    attachment: {headline:'你想换一种生活，也舍不得现在的积累。', body:'多个回答提到对现有工作、团队或积累的留恋；在条件相近的假设下，你也没有明确选择离开。这是可能的拉扯，不是对你的定型。', prompt:'你想保留的是这份工作，还是它给你的关系与积累？', share:'想离开，也可以同时舍不得。'},
-    uncertainty: {headline:'你可能不是没想过，而是还在等一个更确定的答案。', body:'你的回答反复出现继续搜集信息、难以推进决定的倾向；即使假设收入条件已有安排，你仍表示难决定。', prompt:'你还缺哪一条关键事实？得到它以后，你愿意做决定吗？', share:'有时候，卡住我们的不是选择，而是想要确定。'},
-    stability: {headline:'变化带来的不确定性，可能比现职更让你犹豫。', body:'你在多道题中优先考虑稳定与风险；即使假设收入条件相近，你也没有明确选择离开。这不等于你应该留下。', prompt:'哪一种具体风险需要降低，你才愿意认真考虑下一步？', share:'我在意的不是不变，而是变化有没有边界。'},
-    unclear: {headline:'现在还看不出唯一的原因。', body:'你的回答没有稳定地指向同一个原因，或者关键问题尚未明确。这比强行给你一个“人格类型”更诚实。', prompt:'哪一个问题最值得你先弄清楚，才能判断下一步？', share:'我还在弄清，究竟是什么让我留下。'}
+    reality: {headline:'你想走，但现实条件还挡在前面。', body:'目前最明确的阻力是实际成本。若收入与开销已有安排，你更倾向离开。'},
+    mixed: {headline:'你留下，可能不止一个原因。', body:'除了现实限制，你对离开这件事仍有犹豫。解决眼前条件，也未必会立刻改变决定。'},
+    attachment: {headline:'你想改变，也舍不得现在的积累。', body:'团队、工作内容或已有积累，是你仍想留下的一部分原因。'},
+    uncertainty: {headline:'你还在等一个更确定的答案。', body:'你已经想过离开，但对下一步的信息和结果仍拿不准。'},
+    stability: {headline:'变化的不确定性让你犹豫。', body:'相比马上换工作，你现在更在意稳定和可预期的风险。'},
+    unclear: {headline:'目前还看不出唯一原因。', body:'你的选择没有一致地指向同一种阻力；与其勉强归类，不如保留这个不确定性。'}
   };
   function showResult() {
     step = questions.length;
     const result = analyze();
     const text = copy[result.type];
-    const evidence = [];
-    if (answers[0] === 'a') evidence.push('你表示短期没有收入会很快影响基本开销。');
-    if (answers[3] === 'a') evidence.push('你表示离职前有必须解决的具体限制。');
-    if (answers[8] === 'r') evidence.push('你回忆最近一次留下，是因为当时的现实条件不允许。');
-    if (result.type === 'attachment' && answers[8] === 'a') evidence.push('你回忆最近一次留下，是因为现职仍有想保留的东西。');
-    if (result.type === 'uncertainty' && answers[8] === 'u') evidence.push('你回忆最近一次留下，是因为缺少判断下一份工作的关键信息。');
-    if (['attachment','uncertainty','stability'].includes(result.type)) {
-      const itemIndices = {stability:[4,6], attachment:[7,9], uncertainty:[10,12]};
-      const behaviorIndices = [5,8,11];
-      const top = result.dimensions[0];
-      for (const index of itemIndices[result.type]) {
-        evidence.push(`第 ${index + 1} 题「${questions[index].title}」你选了「${label(index)}」。`);
-      }
-      const behaviorIndex = behaviorIndices.find(index => answers[index] === top.key);
-      if (behaviorIndex !== undefined) evidence.push(`第 ${behaviorIndex + 1} 题，你选了「${label(behaviorIndex)}」。`);
-    }
-    if (answers[13] === 'leave') evidence.push('假设收入相近且生活开销已有安排，你更想离开。');
-    else if (answers[13] === 'stay') evidence.push('即使假设收入相近且开销已有安排，你仍更想留下。');
-    else evidence.push('即使假设收入相近且开销已有安排，你仍表示难决定。');
-    if (answers[2] === 'c') evidence.push('你目前还没有开始寻找下一步；这只描述进度，不代表你不能离职。');
-    if (evidence.length === 0) evidence.push('目前可用的回答还不足以支持更具体的判断。');
-    app.innerHTML = `<div class="eyebrow">你的私人报告 · 原型结果</div>
-      <div class="card section"><div class="report-head"><span class="pill">先看最有把握的一点</span><h2>${escapeHTML(text.headline)}</h2></div>
-      <p>${escapeHTML(text.body)}</p><hr class="divider"><h3>为什么这样说</h3>
-      <ul class="evidence">${evidence.map(e => `<li>${escapeHTML(e)}</li>`).join('')}</ul>
-      <hr class="divider"><h3>留给自己的一个问题</h3><p>${escapeHTML(text.prompt)}</p>
-      <div class="notice">这是一套未经正式验证的自我梳理题，不是心理诊断、职业建议或辞职建议。答案仅在本页内存中处理；刷新即清空。</div></div>
-      <div class="share-card" aria-label="分享卡预览"><div class="eyebrow">分享卡预览 · 不含个人答题信息</div>
-      <h3>${escapeHTML(text.share)}</h3><p>你为什么还没辞职？｜一个帮你整理想法的小测试</p></div>
-      <p class="muted">${publicUrl() ? '公开页面地址会随分享文案附上。' : '当前是本地原型；分享卡尚无朋友可访问的测试链接。'}</p>
-      <div class="actions"><button class="button" id="share">分享这句非敏感标题</button><button class="button secondary" id="save-image">保存分享图</button><button class="button secondary" id="restart">重新测试</button><button class="text-button" id="edit">← 修改答案</button></div>
-      <p class="muted" id="status" role="status"></p>
-      <div class="card section" id="feedback"><h3>帮我们检查结果是否说中了你</h3>
-      <p class="muted">这份反馈不会自动发送。你可以复制后自行提供给产品设计者；不包含你的答题记录。请勿填写收入、家庭等隐私。</p>
-      <div class="feedback-options" role="group" aria-label="结果贴合程度">
-        <button type="button" class="choice" data-rating="贴合" aria-pressed="false">贴合</button>
-        <button type="button" class="choice" data-rating="部分贴合" aria-pressed="false">部分贴合</button>
-        <button type="button" class="choice" data-rating="不贴合" aria-pressed="false">不贴合</button></div>
-      <label for="feedback-note">哪里说中了，或哪里判断错了？（选填）</label>
-      <textarea id="feedback-note" maxlength="240" placeholder="例如：现实限制说中了，但我其实不留恋现在的工作。"></textarea>
-      <div class="actions"><button type="button" class="button secondary" id="make-feedback">生成可复制的反馈</button></div>
-      <textarea id="feedback-output" aria-label="反馈文本" readonly hidden></textarea>
-      <p class="muted" id="feedback-status" role="status"></p></div>`;
-    document.getElementById('share').addEventListener('click', async () => {
-      const content = `${text.share}\n你为什么还没辞职？｜一个帮你整理想法的小测试${publicUrl() ? `\n${publicUrl()}` : ''}`;
-      const status = document.getElementById('status');
-      try {
-        if (navigator.share) await navigator.share({title:'你为什么还没辞职？', text:content});
-        else if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(content);
-          status.textContent = '已复制分享文案；不包含你的答题信息。';
-        } else status.textContent = '当前环境不支持一键复制，请手动复制上方分享卡文字。';
-      } catch (error) {
-        if (error.name !== 'AbortError') status.textContent = '分享未完成，请手动复制上方分享卡文字。';
-      }
-    });
-    document.getElementById('save-image').addEventListener('click', () => saveShareImage(text.share));
+    app.innerHTML = `<div class="eyebrow">测试结果</div>
+      <div class="card result-card"><span class="pill">你的结果</span>
+      <h2>${escapeHTML(text.headline)}</h2>
+      <p>${escapeHTML(text.body)}</p>
+      <button class="button" id="restart">重新测试</button>
+      <small class="muted result-note">仅供自我梳理，不是心理诊断或辞职建议。</small></div>`;
     document.getElementById('restart').addEventListener('click', () => { answers = Array(questions.length).fill(null); showIntro(); });
-    document.getElementById('edit').addEventListener('click', () => showQuestion(questions.length - 1));
-    let rating = '';
-    app.querySelectorAll('[data-rating]').forEach(button => button.addEventListener('click', () => {
-      rating = button.dataset.rating;
-      app.querySelectorAll('[data-rating]').forEach(item => {
-        const selected = item === button;
-        item.classList.toggle('selected', selected);
-        item.setAttribute('aria-pressed', String(selected));
-      });
-    }));
-    document.getElementById('make-feedback').addEventListener('click', async () => {
-      const status = document.getElementById('feedback-status');
-      if (!rating) { status.textContent = '请先选择结果是否贴合。'; return; }
-      const note = document.getElementById('feedback-note').value.trim();
-      const output = document.getElementById('feedback-output');
-      output.value = `测试原型反馈\n结果类型：${result.type}\n贴合程度：${rating}\n补充：${note || '未填写'}`;
-      output.hidden = false;
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          await navigator.clipboard.writeText(output.value);
-          status.textContent = '已复制反馈；未自动发送。';
-        } else status.textContent = '反馈已生成。可从下方文本框手动复制；未自动发送。';
-      } catch (error) { status.textContent = '反馈已生成。可从下方文本框手动复制；未自动发送。'; }
-    });
   }
   showIntro();
   // 仅供本地自动化验证；不向网络发送任何数据。
