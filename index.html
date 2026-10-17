@@ -41,6 +41,13 @@
     .result-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--accent); }
     .result-card p { margin: 0; font-size: 16px; }
     .result-card .text-button { margin-top: 16px; }
+    .explanation { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .explanation h3 { margin: 0 0 11px; font-size: 16px; }
+    .explanation p { font-size: 15px; line-height: 1.75; }
+    .explanation p + p { margin-top: 11px; }
+    .reflection { margin-top: 18px; padding: 14px 16px; border-radius: 12px; background: var(--accent-soft); }
+    .reflection strong { display: block; margin-bottom: 5px; color: var(--accent-deep); font-size: 13px; }
+    .reflection p { color: var(--ink); font-size: 14px; }
     .evidence { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
     .evidence h3 { margin: 0 0 10px; font-size: 15px; }
     .evidence ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.65; }
@@ -146,7 +153,7 @@
       <h1>你为什么<br>还没辞职？</h1>
       <p class="lead">想离开，却还没走。花几分钟，看看是什么让你留在现在的工作里。</p>
       <div class="card"><span class="pill">约 3 分钟 · 15 题</span>
-      <p>根据你的选择，得到一条简短结果和对应的答题依据。不判断你该不该辞职，也不是心理诊断。</p>
+      <p>根据你的选择，得到结果解释和对应的答题依据。不判断你该不该辞职，也不是心理诊断。</p>
       <p class="muted">答案只在当前页面处理，不上传、不保存；刷新页面会清空。</p>
       <button class="button" id="start">开始测试</button></div>`;
     document.getElementById('start').addEventListener('click', () => showQuestion(0));
@@ -205,13 +212,63 @@
     return {type, reality, dimensions};
   }
   const copy = {
-    reality: {headline:'你想走，但现实条件还挡在前面。', body:'目前最明确的阻力是实际成本。若收入与开销已有安排，你更倾向离开。', share:'想离开，也要先给自己留出选择的空间。'},
-    mixed: {headline:'你留下，可能不止一个原因。', body:'除了现实限制，你对离开这件事仍有犹豫。解决眼前条件，也未必会立刻改变决定。', share:'留下来，有时不只因为一个理由。'},
-    attachment: {headline:'你想改变，也舍不得现在的积累。', body:'团队、工作内容或已有积累，是你仍想留下的一部分原因。', share:'想改变，也可以同时舍不得。'},
-    uncertainty: {headline:'你还在等一个更确定的答案。', body:'你已经想过离开，但对下一步的信息和结果仍拿不准。', share:'有时难的不是选择，而是接受不确定。'},
-    stability: {headline:'变化的不确定性让你犹豫。', body:'相比马上换工作，你现在更在意稳定和可预期的风险。', share:'我在意的，是变化有没有边界。'},
-    unclear: {headline:'目前还看不出唯一原因。', body:'你的选择没有一致地指向同一种阻力；与其勉强归类，不如保留这个不确定性。', share:'还没想清楚，也是一种诚实的答案。'}
+    reality: {
+      headline:'你想走，但现实条件还挡在前面。',
+      body:'离开的意愿并不模糊，眼下更需要面对的是转换工作的实际成本。',
+      detail:'把这些回答放在一起，更像是“想离开，但还不能忽略现实代价”，而不是简单的缺少勇气。假设题只改变了收入和开销，并没有替你解决合同、签证等其他限制；结果也不能证明现在离职一定安全。',
+      question:'如果只能先降低一项现实成本，哪一项会让你更有选择余地？',
+      share:'想离开，也要先给自己留出选择的空间。'
+    },
+    mixed: {
+      headline:'你留下，可能不止一个原因。',
+      body:'现实限制确实存在，但它可能不是全部答案。',
+      detail:'当题目假设新工作收入相近、生活开销已有安排时，你仍没有明确选择离开。这提示你可能还在衡量现职的价值，或对下一步仍有疑问。测试无法仅凭这道题断定哪一个原因更重要，也不该把多层拉扯简化成一种性格。',
+      question:'如果现实阻力暂时消失，你还想保留现在工作里的什么？',
+      share:'留下来，有时不只因为一个理由。'
+    },
+    attachment: {
+      headline:'你想改变，也舍不得现在的积累。',
+      body:'现在的团队、工作内容或已有积累，仍是你决定中的一部分。',
+      detail:'这些东西可能是真正值得保留的资源，而不只是“待久了所以不敢走”。但重视现职，也不代表它能抵消你想离开的所有理由；测试只能看出你在权衡，不能替你判断哪边更值得。',
+      question:'你舍不得的是这份工作本身，还是其中某些可以带到下一站的关系与能力？',
+      share:'想改变，也可以同时舍不得。'
+    },
+    uncertainty: {
+      headline:'你还在等一个更确定的答案。',
+      body:'你已经想过离开，但对下一步的信息和结果仍拿不准。',
+      detail:'从你的回答看，继续搜集信息和推迟决定之间可能形成了循环：多知道一些会安心，却也容易发现新的未知。这不等于你优柔寡断；题目也无法判断你缺的究竟是关键事实，还是一个本来就不可能完全确定的结果。',
+      question:'如果只允许再确认一件事，哪条信息最可能真正改变你的决定？',
+      share:'有时难的不是选择，而是接受不确定。'
+    },
+    stability: {
+      headline:'变化的不确定性让你犹豫。',
+      body:'相比马上换工作，你现在更在意稳定和可预期的风险。',
+      detail:'你在考虑新机会时，会先看失去现有稳定性的可能性。这可以是一种审慎的选择，而不是缺乏行动力；但测试只记录你的风险感受，不能判断外部机会实际有多危险，也不能据此建议你留下。',
+      question:'具体是哪种不确定性最让你停下：收入、岗位内容，还是适应新环境？',
+      share:'我在意的，是变化有没有边界。'
+    },
+    unclear: {
+      headline:'目前还看不出唯一原因。',
+      body:'你的选择没有稳定地指向同一种阻力。',
+      detail:'可能是现实限制和内心拉扯同时存在，也可能是题目没有覆盖你的经历；如果关键问题没有回答，判断也会更有限。这里不硬给你贴一个类型，因为“一定有一个主因”本身可能就是错的。',
+      question:'回想最近一次想离开的时刻，当时最先让你停下来的具体事情是什么？',
+      share:'还没想清楚，也是一种诚实的答案。'
+    }
   };
+  function resultObservation(type) {
+    if (type === 'reality' || type === 'mixed') {
+      const blockers = [];
+      if (answers[0] === 'a') blockers.push('收入中断会影响基本开销');
+      if (answers[3] === 'a') blockers.push('离职前有具体限制需要处理');
+      if (answers[8] === 'r') blockers.push('最近一次留下与现实条件有关');
+      const choice = type === 'reality' ? '更想离开' : (answers[13] === 'stay' ? '仍更想留下' : '仍难决定');
+      return `你提到了${blockers.join('、')}。在“新工作收入相近、生活开销已有安排”的假设下，你${choice}。`;
+    }
+    if (type === 'attachment') return `即使新工作的收入相近、开销已有安排，你也没有明确选择离开；关于现职团队和积累的回答，为这份犹豫提供了线索。`;
+    if (type === 'uncertainty') return '即使假设收入条件相近，你仍难决定；你在搜集信息、推进选择上的回答也呈现相近的倾向。';
+    if (type === 'stability') return '在条件相近的假设下，你仍没有明确选择离开；关于稳定和新工作风险的回答更突出。';
+    return `在条件相近的假设下，你选择了「${answerLabel(13)}」；最近一次认真想离职却留下来，你选择的原因是「${answerLabel(8)}」。这些线索尚不足以确定唯一主因。`;
+  }
   function resultEvidence(type) {
     const choice = index => `第 ${index + 1} 题：你对「${questions[index].title}」选择「${answerLabel(index)}」。`;
     if (type === 'reality' || type === 'mixed') {
@@ -229,11 +286,15 @@
     step = questions.length;
     const result = analyze();
     const text = copy[result.type];
+    const observation = resultObservation(result.type);
     const evidence = resultEvidence(result.type);
     app.innerHTML = `<div class="eyebrow">测试结果</div>
       <div class="card result-card"><span class="pill">你的结果</span>
       <h2>${escapeHTML(text.headline)}</h2>
       <p>${escapeHTML(text.body)}</p>
+      <div class="explanation"><h3>这个结果怎么理解</h3>
+      <p>${escapeHTML(observation)}</p><p>${escapeHTML(text.detail)}</p></div>
+      <div class="reflection"><strong>留给自己的一问</strong><p>${escapeHTML(text.question)}</p></div>
       <div class="evidence"><h3>判断依据</h3><ul>${evidence.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></div>
       <button class="text-button" id="restart">重新测试</button>
       <small class="muted result-note">仅供自我梳理，不是心理诊断或辞职建议。</small></div>
