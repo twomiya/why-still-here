@@ -40,13 +40,29 @@
     .result-card { position: relative; overflow: hidden; margin-top: 22px; }
     .result-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--accent); }
     .result-card p { margin: 0; font-size: 16px; }
-    .result-card .button { margin-top: 28px; }
-    .result-note { display: block; margin-top: 18px; }
+    .result-card .text-button { margin-top: 16px; }
+    .evidence { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .evidence h3 { margin: 0 0 10px; font-size: 15px; }
+    .evidence ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 14px; line-height: 1.65; }
+    .evidence li + li { margin-top: 8px; }
+    .share-card { margin-top: 14px; padding: 22px; border-radius: 20px; background: #322a5e; color: #fff; }
+    .share-card .eyebrow { color: #d8cbff; }
+    .share-card h3 { margin: 14px 0 8px; color: #fff; font-size: clamp(19px, 5vw, 24px); line-height: 1.4; overflow-wrap: anywhere; }
+    .share-card p { margin: 0; color: #e1ddef; font-size: 13px; }
+    .share-card .button { margin-top: 18px; min-height: 48px; background: #fff; color: var(--accent-deep); }
+    .share-card .button:hover { background: var(--accent-soft); }
+    .share-actions { display: flex; gap: 10px; }
+    .share-card .button.outline { background: transparent; color: #fff; border: 1px solid #c7b8f0; }
+    .share-card .button.outline:hover { background: #4a407c; }
+    .share-card .muted { display: block; margin-top: 10px; color: #e1ddef; }
+    .result-note { display: block; margin-top: 6px; }
     @media (max-width: 520px) {
       main { width: calc(100% - 32px); padding-top: max(28px, env(safe-area-inset-top)); }
       .card { border-radius: 20px; }
       .button { width: 100%; }
       .result-card { margin-top: 18px; }
+      .share-card { padding: 20px; }
+      .share-actions { flex-direction: column; gap: 0; }
       .choices { gap: 9px; }
     }
     @media (prefers-reduced-motion: reduce) { .progress { transition: none; } }
@@ -82,13 +98,55 @@
   let step = -1;
   let answers = Array(questions.length).fill(null);
   const escapeHTML = str => String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const answerLabel = index => {
+    const option = questions[index].options.find(item => (Array.isArray(item) ? item[0] : item.id) === answers[index]);
+    return option ? (Array.isArray(option) ? option[1] : option.label) : '';
+  };
+  const publicUrl = () => location.protocol === 'https:' ? `${location.origin}${location.pathname}` : '';
+  function saveShareImage(title) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1350;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#322a5e';
+    ctx.fillRect(0, 0, 1080, 1350);
+    ctx.fillStyle = '#9c8bea';
+    ctx.fillRect(90, 112, 100, 9);
+    ctx.fillStyle = '#d8cbff';
+    ctx.font = '700 38px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    ctx.fillText('你为什么还没辞职？', 90, 212);
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 76px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    let line = '';
+    let y = 480;
+    for (const char of Array.from(title)) {
+      if (line && ctx.measureText(line + char).width > 880) {
+        ctx.fillText(line, 90, y);
+        line = char;
+        y += 112;
+      } else line += char;
+    }
+    if (line) ctx.fillText(line, 90, y);
+    ctx.fillStyle = '#e1ddef';
+    ctx.font = '30px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    ctx.fillText('一个帮你整理想法的小测试', 90, 1110);
+    const url = publicUrl();
+    ctx.font = '25px -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif';
+    ctx.fillText(url ? (url.length > 70 ? `${url.slice(0, 67)}…` : url) : '本地预览 · 请从公开网址分享', 90, 1180);
+    const link = document.createElement('a');
+    link.download = '你为什么还没辞职-分享卡.png';
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }
   function showIntro() {
     step = -1;
     app.innerHTML = `<div class="eyebrow">工作选择 · 自我梳理</div>
       <h1>你为什么<br>还没辞职？</h1>
       <p class="lead">想离开，却还没走。花几分钟，看看是什么让你留在现在的工作里。</p>
       <div class="card"><span class="pill">约 3 分钟 · 15 题</span>
-      <p>根据你的选择，得到一条简短结果。不判断你该不该辞职，也不是心理诊断。</p>
+      <p>根据你的选择，得到一条简短结果和对应的答题依据。不判断你该不该辞职，也不是心理诊断。</p>
       <p class="muted">答案只在当前页面处理，不上传、不保存；刷新页面会清空。</p>
       <button class="button" id="start">开始测试</button></div>`;
     document.getElementById('start').addEventListener('click', () => showQuestion(0));
@@ -147,24 +205,58 @@
     return {type, reality, dimensions};
   }
   const copy = {
-    reality: {headline:'你想走，但现实条件还挡在前面。', body:'目前最明确的阻力是实际成本。若收入与开销已有安排，你更倾向离开。'},
-    mixed: {headline:'你留下，可能不止一个原因。', body:'除了现实限制，你对离开这件事仍有犹豫。解决眼前条件，也未必会立刻改变决定。'},
-    attachment: {headline:'你想改变，也舍不得现在的积累。', body:'团队、工作内容或已有积累，是你仍想留下的一部分原因。'},
-    uncertainty: {headline:'你还在等一个更确定的答案。', body:'你已经想过离开，但对下一步的信息和结果仍拿不准。'},
-    stability: {headline:'变化的不确定性让你犹豫。', body:'相比马上换工作，你现在更在意稳定和可预期的风险。'},
-    unclear: {headline:'目前还看不出唯一原因。', body:'你的选择没有一致地指向同一种阻力；与其勉强归类，不如保留这个不确定性。'}
+    reality: {headline:'你想走，但现实条件还挡在前面。', body:'目前最明确的阻力是实际成本。若收入与开销已有安排，你更倾向离开。', share:'想离开，也要先给自己留出选择的空间。'},
+    mixed: {headline:'你留下，可能不止一个原因。', body:'除了现实限制，你对离开这件事仍有犹豫。解决眼前条件，也未必会立刻改变决定。', share:'留下来，有时不只因为一个理由。'},
+    attachment: {headline:'你想改变，也舍不得现在的积累。', body:'团队、工作内容或已有积累，是你仍想留下的一部分原因。', share:'想改变，也可以同时舍不得。'},
+    uncertainty: {headline:'你还在等一个更确定的答案。', body:'你已经想过离开，但对下一步的信息和结果仍拿不准。', share:'有时难的不是选择，而是接受不确定。'},
+    stability: {headline:'变化的不确定性让你犹豫。', body:'相比马上换工作，你现在更在意稳定和可预期的风险。', share:'我在意的，是变化有没有边界。'},
+    unclear: {headline:'目前还看不出唯一原因。', body:'你的选择没有一致地指向同一种阻力；与其勉强归类，不如保留这个不确定性。', share:'还没想清楚，也是一种诚实的答案。'}
   };
+  function resultEvidence(type) {
+    const choice = index => `第 ${index + 1} 题：你对「${questions[index].title}」选择「${answerLabel(index)}」。`;
+    if (type === 'reality' || type === 'mixed') {
+      const items = [];
+      if (answers[0] === 'a') items.push('第 1 题：你表示短期没有收入会很快影响基本开销。');
+      if (answers[3] === 'a') items.push('第 4 题：你表示离职前有必须解决的具体限制。');
+      if (answers[8] === 'r') items.push('第 9 题：你上次留下，是因为现实条件暂时不允许。');
+      return [...items.slice(0, 2), choice(13)];
+    }
+    const dimensions = {stability:[4,6], attachment:[7,9], uncertainty:[10,12]};
+    if (dimensions[type]) return dimensions[type].map(choice);
+    return [choice(13), choice(8)];
+  }
   function showResult() {
     step = questions.length;
     const result = analyze();
     const text = copy[result.type];
+    const evidence = resultEvidence(result.type);
     app.innerHTML = `<div class="eyebrow">测试结果</div>
       <div class="card result-card"><span class="pill">你的结果</span>
       <h2>${escapeHTML(text.headline)}</h2>
       <p>${escapeHTML(text.body)}</p>
-      <button class="button" id="restart">重新测试</button>
-      <small class="muted result-note">仅供自我梳理，不是心理诊断或辞职建议。</small></div>`;
+      <div class="evidence"><h3>判断依据</h3><ul>${evidence.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></div>
+      <button class="text-button" id="restart">重新测试</button>
+      <small class="muted result-note">仅供自我梳理，不是心理诊断或辞职建议。</small></div>
+      <div class="share-card" aria-label="分享卡预览"><div class="eyebrow">分享卡 · 不含原始回答</div>
+      <h3>${escapeHTML(text.share)}</h3><p>你为什么还没辞职？｜一个帮你整理想法的小测试</p>
+      <div class="share-actions"><button class="button" id="share">分享测试</button><button class="button outline" id="save-image">保存卡片图片</button></div>
+      <small class="muted" id="share-status" role="status"></small></div>`;
     document.getElementById('restart').addEventListener('click', () => { answers = Array(questions.length).fill(null); showIntro(); });
+    document.getElementById('save-image').addEventListener('click', () => saveShareImage(text.share));
+    document.getElementById('share').addEventListener('click', async () => {
+      const url = publicUrl();
+      const shareText = `${text.share}\n来测测：你为什么还没辞职？${url ? `\n${url}` : ''}`;
+      const status = document.getElementById('share-status');
+      try {
+        if (url && navigator.share) await navigator.share({title:'你为什么还没辞职？', text:text.share, url});
+        else if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(shareText);
+          status.textContent = '已复制分享文案和测试链接。';
+        } else status.textContent = '当前环境不支持一键分享，请手动复制卡片文字。';
+      } catch (error) {
+        if (error.name !== 'AbortError') status.textContent = '分享未完成，请手动复制卡片文字。';
+      }
+    });
   }
   showIntro();
   // 仅供本地自动化验证；不向网络发送任何数据。
