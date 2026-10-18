@@ -40,6 +40,7 @@
     .result-card { position: relative; overflow: hidden; margin-top: 22px; }
     .result-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 6px; background: var(--accent); }
     .result-card p { margin: 0; font-size: 16px; }
+    .result-card .departure-context { margin: -4px 0 15px; color: var(--accent-deep); font-size: 14px; }
     .result-card .text-button { margin-top: 16px; }
     .explanation { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
     .explanation h3 { margin: 0 0 11px; font-size: 16px; }
@@ -81,26 +82,19 @@
 (() => {
   'use strict';
   const app = document.getElementById('app');
-  const SCALE = [
-    {id:'1', label:'非常不同意'}, {id:'2', label:'不同意'}, {id:'3', label:'说不清'},
-    {id:'4', label:'同意'}, {id:'5', label:'非常同意'}
-  ];
   const questions = [
-    {title:'如果现在离职，短期没有收入，基本开销会怎样？', options:[['a','很快受到影响'],['b','可以支撑一段时间，但压力明显'],['c','暂时不受影响'],['skip','不想回答']]},
-    {title:'是否有人在经济上依赖你？', options:[['a','是，且我承担主要开销'],['b','是，但有人共同承担'],['c','没有'],['skip','不想回答']]},
-    {title:'目前有没有可执行的下一步？', options:[['a','已有明确的新工作机会'],['b','正在面试或接触机会'],['c','还没有开始寻找'],['skip','不想回答']]},
-    {title:'离职前有没有必须先解决的具体限制？', subtitle:'例如签证、合同或福利衔接。', options:[['a','有'],['b','不确定'],['c','没有'],['skip','不想回答']]},
-    {title:'即使有生活费储备，我仍很难接受新工作的不确定性。', options:SCALE},
-    {title:'上次看到一个条件不错的外部岗位，你最先做了什么？', options:[['s','先算收入和试用期等风险'],['a','想到现在工作里舍不得的人或积累'],['u','继续搜集信息、比较机会'],['none','最近没有遇到过']]},
-    {title:'即使新工作的长期前景不明朗，我也能决定先尝试。', options:SCALE},
-    {title:'即使拿到条件相近的机会，我仍会舍不得现在的团队或工作内容。', options:SCALE},
-    {title:'最近一次认真想离职却留下来，最直接的原因是什么？', options:[['r','当时经济或其他现实条件不允许'],['a','现职仍有我想保留的东西'],['u','没有足够信息判断下一份会不会更好'],['none','其他／记不清']]},
-    {title:'如果外部机会条件相近，我不会因为“这里待久了”而留下。', options:SCALE},
-    {title:'我查了很多离职或求职信息，却仍然很难推进决定。', options:SCALE},
-    {title:'如果本周出现一个你感兴趣的岗位，你最可能先做什么？', subtitle:'这是假设情境；结果会更重视你真实经历的回答。', options:[['s','确认收入与风险能否承受'],['a','比较它和现职中舍不得的部分'],['u','继续寻找更多机会，暂时不申请'],['go','直接申请，再逐步了解']]},
-    {title:'只要掌握关键事实，即使结果无法保证，我也能做决定。', options:SCALE},
-    {title:'假如新工作收入相近，且生活开销已有安排，你现在更想？', options:[['leave','离开'],['stay','留下'],['unsure','仍然难决定']]},
-    {title:'过去一个月，你实际做过哪一步？', options:[['active','投递、面试或谈过新机会'],['research','查过信息或和人讨论'],['none','还没有行动']]}
+    {title:'最近一次认真想离开，是被什么触发的？', options:[['pressure','工作压力或节奏'],['growth','薪资或成长空间'],['team','团队或管理方式'],['curiosity','看见了外部机会'],['other','其他／暂时说不清']]},
+    {title:'如果离职后短期没有收入，基本开销会怎样？', options:[['hard','很快受影响'],['tight','能支撑，但压力明显'],['safe','暂时不受影响'],['skip','不想回答']]},
+    {title:'目前是否承担他人的主要生活开销？', options:[['major','是，主要由我承担'],['shared','有，但有人共同承担'],['none','没有'],['skip','不想回答']]},
+    {title:'离职前是否有必须先处理的具体限制？', subtitle:'例如签证、合同或福利衔接。', options:[['yes','有，且目前还没解决'],['unsure','不确定'],['no','没有'],['skip','不想回答']]},
+    {title:'最近一次看到还不错的外部机会，你实际上做了什么？', options:[['applied','投递、面试或主动联系了对方'],['researched','了解过，但没有申请'],['passed','看过后决定不申请'],['none','最近没有遇到合适机会']]},
+    {title:'那次没有继续推进，最直接的原因是什么？', subtitle:'如果上题选择了“已联系”或“没有机会”，选最后一项即可。', options:[['r','当时承担不起收入中断'],['s','不确定试用期或岗位稳定性'],['a','现职还有我想继续投入的事'],['u','没弄清新岗位实际会做什么'],['none','已推进／没遇到机会／其他原因']]},
+    {title:'假如有个收入相近的岗位，但试用期要求模糊，你会先做什么？', options:[['s','索要书面的试用期与转正规则'],['u','找未来同事了解每天的工作'],['a','先和现任主管谈留任条件'],['go','先面试，再决定是否接受']]},
+    {title:'这时现公司给你一个更想做的项目，但薪资不变，你更可能？', options:[['a','认真评估留下做项目的机会'],['s','先确认项目能否稳定落地'],['u','问清项目职责和成长空间'],['go','继续推进外部机会，不先答应']]},
+    {title:'新机会明天截止，仍有信息没拿到。你的下一步是？', options:[['u','请求延长期限，只补一个关键问题'],['s','无法确认关键风险就暂不接受'],['a','拿它与当前团队和项目具体比较'],['go','接受可承受的不确定性，继续推进']]},
+    {title:'假如新工作收入相近，生活开销也已安排，你此刻更想？', options:[['leave','离开'],['stay','留下'],['unsure','仍然难决定']]},
+    {title:'如果只能额外确认一件事，你最想知道什么？', options:[['r','过渡期的收支是否可承受'],['s','试用期和岗位是否稳定'],['a','现职能否给我真正想做的事'],['u','新岗位日常工作究竟是什么'],['none','暂时没有一个决定性问题']]},
+    {title:'上次犹豫后，你实际做过哪件事？', options:[['r','算过过渡期的基本开销'],['s','核实过试用期或合同规则'],['a','和现公司谈过调整'],['u','向新岗位的人问过具体工作'],['none','没有做这些／没有相应经历']]}
   ];
   let step = -1;
   let answers = Array(questions.length).fill(null);
@@ -152,7 +146,7 @@
     app.innerHTML = `<div class="eyebrow">工作选择 · 自我梳理</div>
       <h1>你为什么<br>还没辞职？</h1>
       <p class="lead">想离开，却还没走。花几分钟，看看是什么让你留在现在的工作里。</p>
-      <div class="card"><span class="pill">约 3 分钟 · 15 题</span>
+      <div class="card"><span class="pill">约 3 分钟 · 12 题</span>
       <p>根据你的选择，得到结果解释和对应的答题依据。不判断你该不该辞职，也不是心理诊断。</p>
       <p class="muted">答案只在当前页面处理，不上传、不保存；刷新页面会清空。</p>
       <button class="button" id="start">开始测试</button></div>`;
@@ -182,122 +176,132 @@
     document.getElementById('back').addEventListener('click', () => index ? showQuestion(index - 1) : showIntro());
   }
   function analyze() {
-    const value = (index, reverse = false) => {
-      const n = Number(answers[index]);
-      return Number.isInteger(n) && n >= 1 && n <= 5 ? (reverse ? 6 - n : n) : null;
-    };
-    const dimensions = [
-      {key:'s', name:'对稳定的需要', values:[value(4),value(6,true)]},
-      {key:'a', name:'对现职的留恋', values:[value(7),value(9,true)]},
-      {key:'u', name:'决策迟滞', values:[value(10),value(12,true)]}
-    ];
-    // 行为题是辅助证据，不足以独自触发一个心理结论。
-    for (const d of dimensions) {
-      d.core = d.values.every(v => v !== null) ? (d.values[0] + d.values[1]) / 2 : null;
-      d.support = [answers[5], answers[8], answers[11]].filter(v => v === d.key).length;
-      d.rank = d.core === null ? 0 : d.core + Math.min(d.support, 2) * .25;
+    const signals = {s:[], a:[], u:[]};
+    // 真实经历和假设情境分别记录；不把“想确认收支”直接当成经济上无法离职。
+    for (const index of [5,6,7,8,10,11]) {
+      const key = answers[index];
+      if (signals[key]) {
+        if (index === 5 && !['researched','passed'].includes(answers[4])) continue;
+        signals[key].push({index, kind:index === 5 || index === 11 ? 'actual' : 'scenario'});
+      }
     }
-    dimensions.sort((x,y) => y.rank - x.rank);
-    const [top, second] = dimensions;
-    const reality = answers[0] === 'a' || answers[3] === 'a' || answers[8] === 'r';
+    const reality = answers[1] === 'hard' || answers[3] === 'yes';
     let type = 'unclear';
-    if (reality && answers[13] === 'leave') type = 'reality';
-    else if (reality) type = 'mixed';
-    else if (top.core !== null && top.core >= 3.75 && top.rank - second.rank >= .5) {
-      // 反事实题不吻合时，不强行输出唯一心理原因。
-      if (top.key === 'a' && answers[13] !== 'leave') type = 'attachment';
-      else if (top.key === 'u' && answers[13] === 'unsure') type = 'uncertainty';
-      else if (top.key === 's' && answers[13] !== 'leave') type = 'stability';
+    if (reality) type = answers[9] === 'leave' ? 'reality' : 'mixed';
+    else {
+      const ranked = Object.entries(signals).map(([key,items]) => ({key, items,
+        points:items.reduce((sum,item) => sum + (item.kind === 'actual' ? 2 : 1), 0)}))
+        .sort((a,b) => b.points - a.points);
+      const [top, second] = ranked;
+      const actual = top.items.some(item => item.kind === 'actual');
+      const scenarioCount = top.items.filter(item => item.kind === 'scenario').length;
+      // 不接受单题定型；真实经历加另一情境，或至少三个不同的假设情境。
+      if (top.points >= 3 && top.points > second.points && ((actual && scenarioCount >= 1) || scenarioCount >= 3)) {
+        if (top.key === 'a' && answers[9] !== 'leave') type = 'attachment';
+        else if (top.key === 'u' && answers[9] === 'unsure') type = 'uncertainty';
+        else if (top.key === 's' && answers[9] !== 'leave') type = 'stability';
+      }
     }
-    return {type, reality, dimensions};
+    const matched = type === 'attachment' ? signals.a : type === 'uncertainty' ? signals.u : type === 'stability' ? signals.s : [];
+    return {type, reality, matched};
   }
   const copy = {
     reality: {
-      headline:'你想走，但现实条件还挡在前面。',
-      body:'离开的意愿并不模糊，眼下更需要面对的是转换工作的实际成本。',
-      detail:'把这些回答放在一起，更像是“想离开，但还不能忽略现实代价”，而不是简单的缺少勇气。假设题只改变了收入和开销，并没有替你解决合同、签证等其他限制；结果也不能证明现在离职一定安全。',
-      question:'如果只能先降低一项现实成本，哪一项会让你更有选择余地？',
-      share:'想离开，也要先给自己留出选择的空间。'
+      headline:'现实条件，是现在最明确的阻力。',
+      body:'你给出了具体的现实限制；在收入与基本开销已有安排的假设下，你更想离开。',
+      detail:'这两条信息分别回答“目前有什么挡路”和“条件不同会怎么选”。它们不能证明你现在离职是安全的：假设题不会自动解决签证、合同或实际的转换成本，也不能预测你最终一定会离开。',
+      question:'哪一项现实条件最需要先核实，才能让你有选择余地？',
+      share:'想改变，也需要先看清现实条件。'
     },
     mixed: {
-      headline:'你留下，可能不止一个原因。',
-      body:'现实限制确实存在，但它可能不是全部答案。',
-      detail:'当题目假设新工作收入相近、生活开销已有安排时，你仍没有明确选择离开。这提示你可能还在衡量现职的价值，或对下一步仍有疑问。测试无法仅凭这道题断定哪一个原因更重要，也不该把多层拉扯简化成一种性格。',
-      question:'如果现实阻力暂时消失，你还想保留现在工作里的什么？',
+      headline:'现实阻力存在，但还不是全部。',
+      body:'你确实提到了现实限制；即使假设收入与开销已有安排，你也没有明确选择离开。',
+      detail:'这说明“条件不允许”和“仍在犹豫”可以同时成立。不过，这道假设题无法区分你是珍惜现职、不了解下一份工作，还是有题目没覆盖的顾虑。结果只指出尚有第二层问题，不替你猜它是什么。',
+      question:'假如最迫切的限制消失，什么仍会让你考虑留下？',
       share:'留下来，有时不只因为一个理由。'
     },
     attachment: {
-      headline:'你想改变，也舍不得现在的积累。',
-      body:'现在的团队、工作内容或已有积累，仍是你决定中的一部分。',
-      detail:'这些东西可能是真正值得保留的资源，而不只是“待久了所以不敢走”。但重视现职，也不代表它能抵消你想离开的所有理由；测试只能看出你在权衡，不能替你判断哪边更值得。',
-      question:'你舍不得的是这份工作本身，还是其中某些可以带到下一站的关系与能力？',
+      headline:'现职仍有你想保留的部分。',
+      body:'你的选择多次把当前团队、项目或内部机会放进比较。',
+      detail:'这说明当前工作不只有让你想走的一面；留下可能保有你在乎的资源。但“有值得保留的部分”不等于整份工作仍适合你，也不能说明离开会后悔。把具体想保留的东西拆出来，比给自己贴“恋旧”的标签更有用。',
+      question:'你想保留的是哪一件具体的事？它必须通过留下才能保留吗？',
       share:'想改变，也可以同时舍不得。'
     },
     uncertainty: {
-      headline:'你还在等一个更确定的答案。',
-      body:'你已经想过离开，但对下一步的信息和结果仍拿不准。',
-      detail:'从你的回答看，继续搜集信息和推迟决定之间可能形成了循环：多知道一些会安心，却也容易发现新的未知。这不等于你优柔寡断；题目也无法判断你缺的究竟是关键事实，还是一个本来就不可能完全确定的结果。',
-      question:'如果只允许再确认一件事，哪条信息最可能真正改变你的决定？',
-      share:'有时难的不是选择，而是接受不确定。'
+      headline:'你还缺少关于下一站的关键信息。',
+      body:'你在不同场景里反复选择先了解新岗位的实际内容。',
+      detail:'这里的关键不是“是否有勇气”，而是你尚未验证下一份工作每天做什么、承担什么责任。继续了解可以是合理动作；但若每次都出现新的未知，测试也无法判断你还缺的是否真是决定性信息。',
+      question:'如果只能问新岗位一个问题，哪个答案会真正改变你的选择？',
+      share:'把下一站看清楚，再做选择。'
     },
     stability: {
-      headline:'变化的不确定性让你犹豫。',
-      body:'相比马上换工作，你现在更在意稳定和可预期的风险。',
-      detail:'你在考虑新机会时，会先看失去现有稳定性的可能性。这可以是一种审慎的选择，而不是缺乏行动力；但测试只记录你的风险感受，不能判断外部机会实际有多危险，也不能据此建议你留下。',
-      question:'具体是哪种不确定性最让你停下：收入、岗位内容，还是适应新环境？',
+      headline:'你更想先核实变化的风险。',
+      body:'你的选择多次落在试用期、岗位稳定性或项目能否兑现上。',
+      detail:'索要书面规则或核实风险，是具体的决策动作，不是“性格胆小”的证据。这个测试只记录了你会先检查什么，没有调查这些风险客观上有多大，因此不能据此判断你该留下还是离开。',
+      question:'哪一项风险可以被查证？查证后会怎样改变你的选择？',
       share:'我在意的，是变化有没有边界。'
     },
     unclear: {
-      headline:'目前还看不出唯一原因。',
-      body:'你的选择没有稳定地指向同一种阻力。',
-      detail:'可能是现实限制和内心拉扯同时存在，也可能是题目没有覆盖你的经历；如果关键问题没有回答，判断也会更有限。这里不硬给你贴一个类型，因为“一定有一个主因”本身可能就是错的。',
-      question:'回想最近一次想离开的时刻，当时最先让你停下来的具体事情是什么？',
+      headline:'现有回答不足以确定主因。',
+      body:'现实条件与几种选择倾向没有形成足够一致的线索。',
+      detail:'可能是你尚未遇到可比较的机会，也可能是多个理由同时重要。我们没有把一两道情境题当成人格证据，更不会因你选择“没有经历过”就补出一个原因。这个结果的意思是需要更多具体经历，而不是你本人“没有主见”。',
+      question:'最近一次停下来的具体时刻，你当时缺少的是条件、信息，还是留下的理由？',
       share:'还没想清楚，也是一种诚实的答案。'
     }
   };
-  function resultObservation(type) {
+  function resultObservation(result) {
+    const type = result.type;
     if (type === 'reality' || type === 'mixed') {
       const blockers = [];
-      if (answers[0] === 'a') blockers.push('收入中断会影响基本开销');
-      if (answers[3] === 'a') blockers.push('离职前有具体限制需要处理');
-      if (answers[8] === 'r') blockers.push('最近一次留下与现实条件有关');
-      const choice = type === 'reality' ? '更想离开' : (answers[13] === 'stay' ? '仍更想留下' : '仍难决定');
-      return `你提到了${blockers.join('、')}。在“新工作收入相近、生活开销已有安排”的假设下，你${choice}。`;
+      if (answers[1] === 'hard') blockers.push('短期失去收入会影响基本开销');
+      if (answers[3] === 'yes') blockers.push('离职前有尚未解决的具体限制');
+      if (['researched','passed'].includes(answers[4]) && answers[5] === 'r') blockers.push('最近一次暂停与收入中断有关');
+      if (answers[2] === 'major') blockers.push('你承担他人的主要生活开销');
+      return `你提到了${blockers.join('、')}。而在“新工作收入相近、生活开销已有安排”的假设下，你选择了「${answerLabel(9)}」。`;
     }
-    if (type === 'attachment') return `即使新工作的收入相近、开销已有安排，你也没有明确选择离开；关于现职团队和积累的回答，为这份犹豫提供了线索。`;
-    if (type === 'uncertainty') return '即使假设收入条件相近，你仍难决定；你在搜集信息、推进选择上的回答也呈现相近的倾向。';
-    if (type === 'stability') return '在条件相近的假设下，你仍没有明确选择离开；关于稳定和新工作风险的回答更突出。';
-    return `在条件相近的假设下，你选择了「${answerLabel(13)}」；最近一次认真想离职却留下来，你选择的原因是「${answerLabel(8)}」。这些线索尚不足以确定唯一主因。`;
+    if (result.matched.length) {
+      const actual = result.matched.find(item => item.kind === 'actual');
+      const situation = result.matched.find(item => item.kind === 'scenario');
+      if (actual && situation) return `在一次真实经历中，你做过「${answerLabel(actual.index)}」；在另一道具体情境里，你选择「${answerLabel(situation.index)}」。两条线索指向了相近的关注点。`;
+      return `你的线索主要来自假设情境，例如「${answerLabel(result.matched[0].index)}」。还没有真实经历与之核对，下面的判断只能当作待验证的倾向。`;
+    }
+    return `你最近一次机会的行动是「${answerLabel(4)}」，在收入与开销安排的假设下选择「${answerLabel(9)}」。这些回答尚不能支持一个明确的主因。`;
   }
-  function resultEvidence(type) {
-    const choice = index => `第 ${index + 1} 题：你对「${questions[index].title}」选择「${answerLabel(index)}」。`;
-    if (type === 'reality' || type === 'mixed') {
-      const items = [];
-      if (answers[0] === 'a') items.push('第 1 题：你表示短期没有收入会很快影响基本开销。');
-      if (answers[3] === 'a') items.push('第 4 题：你表示离职前有必须解决的具体限制。');
-      if (answers[8] === 'r') items.push('第 9 题：你上次留下，是因为现实条件暂时不允许。');
-      return [...items.slice(0, 2), choice(13)];
+  function resultEvidence(result) {
+    const item = (index, kind) => `${kind} · 第 ${index + 1} 题「${questions[index].title}」：${answerLabel(index)}`;
+    if (result.type === 'reality' || result.type === 'mixed') {
+      const evidence = [];
+      if (answers[1] === 'hard') evidence.push(item(1, '现实条件'));
+      if (answers[3] === 'yes') evidence.push(item(3, '现实条件'));
+      if (['researched','passed'].includes(answers[4]) && answers[5] === 'r') evidence.push(item(5, '真实经历'));
+      if (answers[2] === 'major') evidence.push(item(2, '背景条件'));
+      return [...evidence, item(9, '条件假设')];
     }
-    const dimensions = {stability:[4,6], attachment:[7,9], uncertainty:[10,12]};
-    if (dimensions[type]) return dimensions[type].map(choice);
-    return [choice(13), choice(8)];
+    if (result.matched.length) {
+      const actual = result.matched.filter(entry => entry.kind === 'actual');
+      const scenarios = result.matched.filter(entry => entry.kind === 'scenario');
+      const selected = actual.length ? [...actual.slice(0, 1), ...scenarios.slice(0, 2)] : scenarios.slice(0, 3);
+      return selected.map(entry => item(entry.index, entry.kind === 'actual' ? '真实经历' : '情境选择'));
+    }
+    return [item(4, '真实行动'), item(9, '条件假设')];
   }
   function showResult() {
     step = questions.length;
     const result = analyze();
     const text = copy[result.type];
-    const observation = resultObservation(result.type);
-    const evidence = resultEvidence(result.type);
+    const observation = resultObservation(result);
+    const evidence = resultEvidence(result);
     app.innerHTML = `<div class="eyebrow">测试结果</div>
       <div class="card result-card"><span class="pill">你的结果</span>
       <h2>${escapeHTML(text.headline)}</h2>
+      <p class="departure-context">想离开的触发：${escapeHTML(answerLabel(0))}</p>
       <p>${escapeHTML(text.body)}</p>
       <div class="explanation"><h3>这个结果怎么理解</h3>
       <p>${escapeHTML(observation)}</p><p>${escapeHTML(text.detail)}</p></div>
       <div class="reflection"><strong>留给自己的一问</strong><p>${escapeHTML(text.question)}</p></div>
-      <div class="evidence"><h3>判断依据</h3><ul>${evidence.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></div>
+      <div class="evidence"><h3>这次判定用到的回答</h3><ul>${evidence.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul></div>
       <button class="text-button" id="restart">重新测试</button>
-      <small class="muted result-note">仅供自我梳理，不是心理诊断或辞职建议。</small></div>
+      <small class="muted result-note">这些是答题线索，不是经过验证的心理量表；也不是辞职建议。</small></div>
       <div class="share-card" aria-label="分享卡预览"><div class="eyebrow">分享卡 · 不含原始回答</div>
       <h3>${escapeHTML(text.share)}</h3><p>你为什么还没辞职？｜一个帮你整理想法的小测试</p>
       <div class="share-actions"><button class="button" id="share">分享测试</button><button class="button outline" id="save-image">保存卡片图片</button></div>
